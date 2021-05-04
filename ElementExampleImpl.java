@@ -1,4 +1,3 @@
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,7 +13,7 @@ public final class ElementExampleImpl implements IElement {
         public int getOperationCount() { return this.operationCount; }
 
         // проверка на уникальность номеров элементов
-        private Map<Integer, ElementExampleImpl> uniqueMap = new HashMap<>();
+        private final Map<Integer, ElementExampleImpl> uniqueMap = new HashMap<>();
 
     }
 
@@ -36,7 +35,7 @@ public final class ElementExampleImpl implements IElement {
     public long getId() { return this.id; }
 
     @Override
-    public int getNumber() { return this.number.intValue(); }
+    public int getNumber() { return this.number; }
 
     private void setNumber(final int number) {
         if (null != this.number) {
@@ -44,6 +43,7 @@ public final class ElementExampleImpl implements IElement {
                 throw new IllegalStateException("Unexpected situation.");
             }
         }
+
 
         final ElementExampleImpl old = this.context.uniqueMap.put(this.number = number, this);
         if (null == old) { return; }
@@ -59,12 +59,20 @@ public final class ElementExampleImpl implements IElement {
         this.context.operationCount++;
 
         // по условию задачи, данная операция «долгая»
-        // try { Thread.sleep(10); }
-        // catch (final Throwable t) {}
+//         try { Thread.sleep(10); }
+//         catch (final Throwable t) {}
     }
 
     @Override
     protected Object clone() throws CloneNotSupportedException {
         throw new UnsupportedOperationException(); // клонировать элементы нельзя
+    }
+
+    @Override
+    public String toString() {
+        return "ElementExampleImpl{" +
+                "id=" + id +
+                ", number=" + number +
+                '}';
     }
 }
