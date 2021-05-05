@@ -22,20 +22,29 @@ public enum Task2Impl implements IElementNumberAssigner {
     @Override
     public void assignNumbers(final List<IElement> elements) {
         if (elements == null) return;
+        boolean containsNegativeNumbers = elements.stream()
+                .anyMatch(el -> 0 > el.getNumber());
+        if (containsNegativeNumbers){
+            System.err.println("list contains negative numbers,performance will slow down :(");
+        }
         for (int i = 0; i < elements.size(); i++) {
             IElement element = elements.get(i);
             if (element.getNumber() != i) {
-                fixChain(elements,element,i);
+                if (containsNegativeNumbers) {
+                    plainFix(elements,element,i);
+                }else {
+                    fixChain(elements,element,i);
+                }
             }
         }
     }
 
     private void fixChain(List<IElement> elements, IElement element, int index){
-        Stack<Consumer<Object>> stack = new Stack<>();//что-бы не было stackoverflow при больших листах
+        Stack<Consumer<Void>> stack = new Stack<>();
         if (element!=null){
             for (int i = 0; i < elements.size(); i++) {
                 IElement innerElem = elements.get(i);
-                if (innerElem.getNumber() == index && innerElem != element) {
+                if (innerElem.getNumber() == index) {
                     innerElem.setupNumber(buffer);
                     int unusedNumber = element.getNumber();
                     element.setupNumber(index);
@@ -50,25 +59,24 @@ public enum Task2Impl implements IElementNumberAssigner {
         }
     }
 
-    private void fixBuffer(List<IElement> elements, IElement element, int index, int unusedNumber,Stack<Consumer<Object>> stack) {
+    private void fixBuffer(List<IElement> elements, IElement element, int index, int unusedNumber,Stack<Consumer<Void>> stack) {
         for (int i = 0; i < elements.size(); i++) {
             if (i==unusedNumber){
                 IElement innerElem = elements.get(i);
-                if (innerElem.getNumber()==index&&innerElem!=element){
+                if (innerElem.getNumber()==index){
                     innerElem.setupNumber(unusedNumber);
                     element.setupNumber(index);
-                    return;
                 }else {
                     int unusedNumber0 = innerElem.getNumber();
                     innerElem.setupNumber(unusedNumber);
                     int finalI = i;
                     stack.push((unusedArgument)->fixBuffer(elements,innerElem,finalI,unusedNumber0,stack));
                 }
+                return;
             }
         }
     }
 
-    @Deprecated
     private void plainFix(List<IElement> elements, IElement element, int index) {
         elements.stream()
                 .parallel()
